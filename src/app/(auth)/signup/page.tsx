@@ -35,19 +35,22 @@ function SignupPage(): React.JSX.Element {
 
   return (
     <div>
-      <h1 className="mb-6 text-center text-2xl font-semibold text-gray-900">
-        Create Account
-      </h1>
+      <div className="mb-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Start tracking your children&apos;s health records digitally.
+        </p>
+      </div>
 
       {error && (
-        <p className="mb-4 rounded bg-terracotta-50 p-3 text-sm text-terracotta-600">
-          {error}
-        </p>
+        <div className="mb-6 rounded-lg bg-terracotta-50 p-4">
+          <p className="text-sm text-terracotta-600">{error}</p>
+        </div>
       )}
 
-      <form onSubmit={handleSignup} className="space-y-4">
+      <form onSubmit={handleSignup} className="space-y-5">
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-gray-700">
             Email
           </label>
           <input
@@ -55,14 +58,17 @@ function SignupPage(): React.JSX.Element {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-sage-500 focus:outline-none focus:ring-1 focus:ring-sage-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm
+                       placeholder:text-gray-400
+                       focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-500/20"
+            placeholder="you@example.com"
             required
             autoComplete="email"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700">
             Password
           </label>
           <input
@@ -70,16 +76,18 @@ function SignupPage(): React.JSX.Element {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-sage-500 focus:outline-none focus:ring-1 focus:ring-sage-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm
+                       placeholder:text-gray-400
+                       focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-500/20"
+            placeholder="Minimum 8 characters"
             required
             minLength={8}
             autoComplete="new-password"
           />
-          <p className="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-gray-700">
             Confirm Password
           </label>
           <input
@@ -87,7 +95,10 @@ function SignupPage(): React.JSX.Element {
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-sage-500 focus:outline-none focus:ring-1 focus:ring-sage-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm
+                       placeholder:text-gray-400
+                       focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-500/20"
+            placeholder="Re-enter your password"
             required
             minLength={8}
             autoComplete="new-password"
@@ -97,15 +108,20 @@ function SignupPage(): React.JSX.Element {
         <button
           type="submit"
           disabled={loading}
-          className="min-h-[44px] w-full rounded bg-sage-500 px-4 py-2 text-sm font-medium text-white hover:bg-sage-600 disabled:opacity-50"
+          className="min-h-[44px] w-full rounded-lg bg-sage-500 px-4 py-2.5 text-sm font-semibold
+                     text-white shadow-sm hover:bg-sage-600 disabled:opacity-50 transition-colors"
         >
           {loading ? "Creating account..." : "Create Account"}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-xs text-gray-400">
+        By signing up, you agree to our privacy policy. Your data is stored in the EU and never shared.
+      </p>
+
+      <p className="mt-6 text-center text-sm text-gray-500">
         Already have an account?{" "}
-        <Link href="/login" className="text-sage-600 hover:text-sage-700">
+        <Link href="/login" className="font-medium text-sage-600 hover:text-sage-700">
           Sign in
         </Link>
       </p>
