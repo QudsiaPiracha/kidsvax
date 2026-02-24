@@ -1,0 +1,136 @@
+{
+  "common": {
+    "appName": "KidsVax",
+    "loading": "Laden...",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "next": "Weiter",
+    "confirm": "Bestätigen",
+    "error": "Etwas ist schiefgelaufen"
+  },
+  "nav": {
+    "dashboard": "Übersicht",
+    "schedule": "Termine",
+    "growth": "Wachstum",
+    "milestones": "Meilensteine",
+    "scan": "Scannen",
+    "settings": "Einstellungen"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "logout": "Abmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "resetPassword": "Passwort zurücksetzen",
+    "magicLink": "Magic Link senden",
+    "signupSuccess": "Überprüfen Sie Ihre E-Mail, um Ihr Konto zu bestätigen"
+  },
+  "dashboard": {
+    "title": "Ihre Kinder",
+    "addChild": "Kind hinzufügen",
+    "noChildren": "Fügen Sie Ihr erstes Kind hinzu",
+    "nextUp": "Als Nächstes",
+    "overdue": "Überfällig",
+    "vaccinations": "Impfungen",
+    "exams": "U-Untersuchungen",
+    "daysAway": "in {days} Tagen",
+    "weeksAway": "in {weeks} Wochen",
+    "completed": "{count} von {total}"
+  },
+  "child": {
+    "name": "Name",
+    "dateOfBirth": "Geburtsdatum",
+    "gender": "Geschlecht",
+    "male": "Männlich",
+    "female": "Weiblich",
+    "diverse": "Divers",
+    "premature": "Frühgeburt",
+    "allergies": "Allergien",
+    "notes": "Notizen",
+    "pediatrician": "Kinderarzt/Kinderärztin",
+    "noPediatrician": "Kein Kinderarzt zugewiesen"
+  },
+  "status": {
+    "scheduled": "Geplant",
+    "upcoming": "Bevorstehend",
+    "overdue": "Überfällig",
+    "completed": "Abgeschlossen",
+    "skipped": "Übersprungen"
+  },
+  "exams": {
+    "title": "Vorsorgeuntersuchungen (U-Untersuchungen)",
+    "markCompleted": "Als abgeschlossen markieren",
+    "markSkipped": "Überspringen",
+    "date": "Datum",
+    "physician": "Arzt/Ärztin",
+    "findings": "Befunde",
+    "observations": "Elternbeobachtungen",
+    "referrals": "Überweisungen"
+  },
+  "vaccinations": {
+    "title": "Impfungen",
+    "markAdministered": "Als verabreicht markieren",
+    "dose": "Dosis {number} von {total}",
+    "productName": "Produktname",
+    "lotNumber": "Chargennummer",
+    "injectionSite": "Injektionsstelle",
+    "masernCompliant": "Masernschutz erfüllt",
+    "masernNonCompliant": "Masernschutz: Handlungsbedarf"
+  },
+  "growth": {
+    "title": "Wachstumskurven",
+    "addMeasurement": "Messung hinzufügen",
+    "height": "Größe (cm)",
+    "weight": "Gewicht (kg)",
+    "headCircumference": "Kopfumfang (cm)",
+    "bmi": "BMI",
+    "percentile": "Perzentile"
+  },
+  "milestones": {
+    "title": "Entwicklungsmeilensteine",
+    "motor": "Motorik",
+    "language": "Sprache",
+    "socialCognitive": "Sozial & Kognitiv",
+    "achieved": "Ja",
+    "notYet": "Noch nicht"
+  },
+  "scan": {
+    "title": "Dokument scannen",
+    "selectType": "Dokumenttyp auswählen",
+    "uHeft": "U-Heft Seite",
+    "impfpass": "Impfpass Seite",
+    "growthChart": "Wachstumskurve",
+    "takePhoto": "Foto aufnehmen oder hochladen",
+    "processing": "Daten werden extrahiert...",
+    "reviewResults": "Extrahierte Daten überprüfen",
+    "saveResults": "In Unterlagen speichern",
+    "scanAnother": "Weitere Seite scannen",
+    "unreadable": "Bild konnte nicht gelesen werden. Bitte versuchen Sie es mit besserer Beleuchtung erneut."
+  },
+  "insights": {
+    "trendSummary": "Wachstumsübersicht",
+    "dietary": "Ernährungstipps",
+    "activity": "Aktivitätstipps",
+    "doctorQuestions": "Fragen für Ihren Kinderarzt",
+    "disclaimer": "Allgemeine Hinweise, keine medizinische Beratung. Konsultieren Sie immer Ihren Kinderarzt.",
+    "refresh": "Aktualisieren",
+    "unavailable": "Gesundheitshinweise vorübergehend nicht verfügbar"
+  },
+  "reminders": {
+    "title": "Erinnerungseinstellungen",
+    "uExamReminders": "U-Untersuchungs-Erinnerungen",
+    "vaccinationReminders": "Impferinnerungen",
+    "overdueAlerts": "Überfälligkeits-Benachrichtigungen"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "bundesland": "Bundesland",
+    "profile": "Profil"
+  }
+}

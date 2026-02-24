@@ -1,0 +1,136 @@
+{
+  "common": {
+    "appName": "KidsVax",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "error": "Something went wrong"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "schedule": "Schedule",
+    "growth": "Growth",
+    "milestones": "Milestones",
+    "scan": "Scan",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset password",
+    "magicLink": "Send magic link",
+    "signupSuccess": "Check your email to confirm your account"
+  },
+  "dashboard": {
+    "title": "Your Children",
+    "addChild": "Add child",
+    "noChildren": "Add your first child to get started",
+    "nextUp": "Next up",
+    "overdue": "Overdue",
+    "vaccinations": "Vaccinations",
+    "exams": "U-Exams",
+    "daysAway": "{days} days away",
+    "weeksAway": "{weeks} weeks away",
+    "completed": "{count} of {total}"
+  },
+  "child": {
+    "name": "Name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "diverse": "Diverse",
+    "premature": "Premature birth (Frühgeburt)",
+    "allergies": "Allergies",
+    "notes": "Notes",
+    "pediatrician": "Pediatrician (Kinderarzt/Kinderärztin)",
+    "noPediatrician": "No pediatrician assigned"
+  },
+  "status": {
+    "scheduled": "Scheduled",
+    "upcoming": "Upcoming",
+    "overdue": "Overdue",
+    "completed": "Completed",
+    "skipped": "Skipped"
+  },
+  "exams": {
+    "title": "U-Exams (Vorsorgeuntersuchungen)",
+    "markCompleted": "Mark as completed",
+    "markSkipped": "Skip",
+    "date": "Date",
+    "physician": "Physician",
+    "findings": "Findings",
+    "observations": "Parent observations",
+    "referrals": "Referrals"
+  },
+  "vaccinations": {
+    "title": "Vaccinations (Impfungen)",
+    "markAdministered": "Mark as administered",
+    "dose": "Dose {number} of {total}",
+    "productName": "Product name",
+    "lotNumber": "Lot number",
+    "injectionSite": "Injection site",
+    "masernCompliant": "Masernschutz compliant",
+    "masernNonCompliant": "Masernschutz: action needed"
+  },
+  "growth": {
+    "title": "Growth Charts",
+    "addMeasurement": "Add measurement",
+    "height": "Height (cm)",
+    "weight": "Weight (kg)",
+    "headCircumference": "Head circumference (cm)",
+    "bmi": "BMI",
+    "percentile": "Percentile"
+  },
+  "milestones": {
+    "title": "Developmental Milestones",
+    "motor": "Motor",
+    "language": "Language",
+    "socialCognitive": "Social & Cognitive",
+    "achieved": "Yes",
+    "notYet": "Not yet"
+  },
+  "scan": {
+    "title": "Scan Document",
+    "selectType": "Select document type",
+    "uHeft": "U-Heft page",
+    "impfpass": "Impfpass page",
+    "growthChart": "Growth chart",
+    "takePhoto": "Take photo or upload",
+    "processing": "Extracting data...",
+    "reviewResults": "Review extracted data",
+    "saveResults": "Save to records",
+    "scanAnother": "Scan another page",
+    "unreadable": "Could not read this image. Please try again with better lighting."
+  },
+  "insights": {
+    "trendSummary": "Growth Overview",
+    "dietary": "Nutrition Tips",
+    "activity": "Activity Tips",
+    "doctorQuestions": "Questions for Your Pediatrician",
+    "disclaimer": "General guidance, not medical advice. Always consult your pediatrician.",
+    "refresh": "Refresh",
+    "unavailable": "Health insights temporarily unavailable"
+  },
+  "reminders": {
+    "title": "Reminder Settings",
+    "uExamReminders": "U-Exam reminders",
+    "vaccinationReminders": "Vaccination reminders",
+    "overdueAlerts": "Overdue alerts"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "bundesland": "Federal state (Bundesland)",
+    "profile": "Profile"
+  }
+}
