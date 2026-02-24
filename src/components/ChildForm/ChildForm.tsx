@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import type { CreateChildInput } from "@/lib/validations/child";
 
 export interface ChildFormData {
   name: string;

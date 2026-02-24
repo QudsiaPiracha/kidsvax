@@ -3,15 +3,16 @@
  * In production, this will fetch child data from Supabase.
  * For now, renders a placeholder.
  */
-export default function ChildDetailPage({
+export default async function ChildDetailPage({
   params,
 }: {
-  params: { id: string };
-}): React.JSX.Element {
+  params: Promise<{ id: string }>;
+}): Promise<React.JSX.Element> {
+  const { id } = await params;
   // TODO: fetch child data, pediatrician, stats from Supabase
   return (
     <div className="max-w-md mx-auto p-4 text-gray-500">
-      Child detail for {params.id} -- data loading not yet implemented.
+      Child detail for {id} -- data loading not yet implemented.
     </div>
   );
 }

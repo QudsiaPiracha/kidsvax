@@ -11,7 +11,7 @@ export async function PUT(
   const { id } = await params;
   const supabase = await createServerClient();
   const body = await req.json();
-  const result = await updateUExamRecord(id, supabase, body);
+  const result = await updateUExamRecord(id, supabase as any, body);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

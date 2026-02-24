@@ -45,7 +45,7 @@ export function Timeline({
 }
 
 function Header({
-  childName,
+  childName: _childName,
   childrenList,
   onChildSelect,
   view,

@@ -13,7 +13,8 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerClient();
-  const result = await listMeasurements(id, supabase);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = await listMeasurements(id, supabase as any);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }
@@ -25,7 +26,8 @@ export async function POST(
   const { id } = await params;
   const supabase = await createServerClient();
   const body = await req.json();
-  const result = await createMeasurement(id, supabase, body);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = await createMeasurement(id, supabase as any, body);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

@@ -13,9 +13,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   let result;
 
   if (confirmType === "u_exam") {
-    result = await confirmScanUExams(supabase, body);
+    result = await confirmScanUExams(supabase as any, body);
   } else {
-    result = await confirmScanVaccinations(supabase, body);
+    result = await confirmScanVaccinations(supabase as any, body);
   }
 
   if (!result.body) return new NextResponse(null, { status: result.status });

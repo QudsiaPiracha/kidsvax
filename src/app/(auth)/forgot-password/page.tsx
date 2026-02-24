@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { resetPassword } from "@/lib/auth";
 
-export function ForgotPasswordPage(): React.JSX.Element {
+function ForgotPasswordPage(): React.JSX.Element {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);

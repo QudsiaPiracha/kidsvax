@@ -4,7 +4,7 @@ import { listChildren, createChild } from "@/lib/services/children";
 
 export async function GET(_req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
-  const result = await listChildren(supabase);
+  const result = await listChildren(supabase as any);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }
@@ -12,7 +12,7 @@ export async function GET(_req: NextRequest): Promise<NextResponse> {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const body = await req.json();
-  const result = await createChild(supabase, body);
+  const result = await createChild(supabase as any, body);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

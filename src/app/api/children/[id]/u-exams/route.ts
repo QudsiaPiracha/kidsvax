@@ -10,7 +10,7 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerClient();
-  const result = await listUExamRecords(id, supabase);
+  const result = await listUExamRecords(id, supabase as any);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

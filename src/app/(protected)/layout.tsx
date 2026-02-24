@@ -1,4 +1,4 @@
-export function ProtectedLayout({
+function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;

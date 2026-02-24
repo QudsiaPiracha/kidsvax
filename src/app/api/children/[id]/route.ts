@@ -14,7 +14,7 @@ export async function GET(
 ): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerClient();
-  const result = await getChild(id, supabase);
+  const result = await getChild(id, supabase as any);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }
@@ -26,7 +26,7 @@ export async function PUT(
   const { id } = await params;
   const supabase = await createServerClient();
   const body = await req.json();
-  const result = await updateChild(id, supabase, body);
+  const result = await updateChild(id, supabase as any, body);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }
@@ -37,7 +37,7 @@ export async function DELETE(
 ): Promise<NextResponse> {
   const { id } = await params;
   const supabase = await createServerClient();
-  const result = await deleteChild(id, supabase);
+  const result = await deleteChild(id, supabase as any);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

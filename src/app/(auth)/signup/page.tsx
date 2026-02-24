@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signUp } from "@/lib/auth";
 
-export function SignupPage(): React.JSX.Element {
+function SignupPage(): React.JSX.Element {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

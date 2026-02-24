@@ -12,7 +12,7 @@ export async function POST(
   const supabase = await createServerClient();
   const body = await req.json().catch(() => ({}));
   const language = (body as Record<string, unknown>).language as string ?? "en";
-  const result = await refreshInsights(id, supabase, language);
+  const result = await refreshInsights(id, supabase as any, language);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

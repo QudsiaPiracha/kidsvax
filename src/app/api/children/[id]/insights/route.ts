@@ -11,7 +11,7 @@ export async function GET(
   const { id } = await params;
   const supabase = await createServerClient();
   const language = req.nextUrl.searchParams.get("lang") ?? "en";
-  const result = await getInsights(id, supabase, language);
+  const result = await getInsights(id, supabase as any, language);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

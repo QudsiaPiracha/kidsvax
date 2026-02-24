@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, sendMagicLink } from "@/lib/auth";
 
-export function LoginPage(): React.JSX.Element {
+function LoginPage(): React.JSX.Element {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

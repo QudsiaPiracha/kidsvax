@@ -7,7 +7,7 @@ import {
 
 export async function GET(): Promise<NextResponse> {
   const supabase = await createServerClient();
-  const result = await getReminderPreferences(supabase);
+  const result = await getReminderPreferences(supabase as any);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }
@@ -15,7 +15,7 @@ export async function GET(): Promise<NextResponse> {
 export async function PUT(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const body = await req.json();
-  const result = await updateReminderPreferences(supabase, body);
+  const result = await updateReminderPreferences(supabase as any, body);
   if (!result.body) return new NextResponse(null, { status: result.status });
   return NextResponse.json(result.body, { status: result.status });
 }

@@ -2,7 +2,7 @@ import {
   scanRequestSchema,
   MAX_IMAGE_SIZE_BYTES,
 } from "@/lib/validations/scan";
-import { runScanAgent, deduplicateResults } from "@/lib/agents/scan-agent";
+import { runScanAgent } from "@/lib/agents/scan-agent";
 import type { ServiceResult } from "@/lib/services/children";
 
 // -----------------------------------------------------------------------

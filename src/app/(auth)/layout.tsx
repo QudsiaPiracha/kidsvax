@@ -1,4 +1,4 @@
-export function AuthLayout({
+function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
