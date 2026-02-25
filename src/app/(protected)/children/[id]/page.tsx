@@ -227,6 +227,30 @@ export default function ChildDetailPage(): React.JSX.Element {
           <span className="text-gray-400">→</span>
         </Link>
         <Link
+          href={`/children/${id}/growth`}
+          className="flex items-center justify-between w-full rounded-xl border border-sage-100 bg-white p-4
+                     hover:border-sage-300 transition-colors"
+        >
+          <span className="text-sm font-medium text-gray-900">Growth</span>
+          <span className="text-gray-400">→</span>
+        </Link>
+        <Link
+          href={`/children/${id}/milestones`}
+          className="flex items-center justify-between w-full rounded-xl border border-sage-100 bg-white p-4
+                     hover:border-sage-300 transition-colors"
+        >
+          <span className="text-sm font-medium text-gray-900">Milestones</span>
+          <span className="text-gray-400">→</span>
+        </Link>
+        <Link
+          href={`/children/${id}/insights`}
+          className="flex items-center justify-between w-full rounded-xl border border-sage-100 bg-white p-4
+                     hover:border-sage-300 transition-colors"
+        >
+          <span className="text-sm font-medium text-gray-900">Insights</span>
+          <span className="text-gray-400">→</span>
+        </Link>
+        <Link
           href={`/children/${id}/scan`}
           className="flex items-center justify-between w-full rounded-xl border border-sage-100 bg-white p-4
                      hover:border-sage-300 transition-colors"

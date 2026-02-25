@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase-browser";
+import { ReminderSettings } from "@/components/ReminderSettings";
 
 export default function ProfilePage(): React.JSX.Element {
   const router = useRouter();
@@ -170,6 +171,12 @@ export default function ProfilePage(): React.JSX.Element {
             {loading ? "Updating..." : "Update Password"}
           </button>
         </form>
+      </div>
+
+      {/* Reminder Settings */}
+      <div className="rounded-2xl border border-sage-100 bg-white p-5">
+        <h2 className="text-sm font-semibold text-gray-700 mb-4">Reminder Settings</h2>
+        <ReminderSettings />
       </div>
 
       {/* Sign out */}
