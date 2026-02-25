@@ -3,7 +3,7 @@
  * Uses simplified WHO reference data for key ages.
  */
 
-interface PercentileData {
+export interface PercentileData {
   p3: number;
   p15: number;
   p50: number;
@@ -11,7 +11,7 @@ interface PercentileData {
   p97: number;
 }
 
-type AgeTable = Record<number, PercentileData>;
+export type AgeTable = Record<number, PercentileData>;
 
 // Simplified WHO weight-for-age boys (kg)
 const WHO_WEIGHT_BOYS: AgeTable = {
@@ -81,7 +81,7 @@ const WHO_HEAD_GIRLS: AgeTable = {
   36: { p3: 45.6, p15: 46.7, p50: 48.1, p85: 49.5, p97: 50.5 },
 };
 
-function getTable(
+export function getTable(
   gender: string,
   measurement: string
 ): AgeTable {

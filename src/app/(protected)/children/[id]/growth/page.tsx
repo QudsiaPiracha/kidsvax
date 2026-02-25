@@ -3,11 +3,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { formatDateDE } from "@/lib/age-utils";
+import { GrowthChart } from "@/components/GrowthChart";
 
 interface Child {
   id: string;
   name: string;
   date_of_birth: string;
+  gender: string;
 }
 
 interface Measurement {
@@ -165,6 +167,15 @@ export default function GrowthPage(): React.JSX.Element {
             </button>
           </div>
         </form>
+      )}
+
+      {/* Growth Chart */}
+      {child && measurements.length > 0 && (
+        <GrowthChart
+          measurements={measurements}
+          gender={child.gender}
+          dateOfBirth={child.date_of_birth}
+        />
       )}
 
       {measurements.length === 0 ? (

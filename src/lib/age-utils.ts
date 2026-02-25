@@ -39,6 +39,17 @@ export function calculateCountdown(
   return null;
 }
 
+/** Calculate age in months (decimal) between DOB and a reference date. */
+export function calculateAgeMonths(dob: string, referenceDate: string): number {
+  const birth = new Date(dob);
+  const ref = new Date(referenceDate);
+  const months =
+    (ref.getFullYear() - birth.getFullYear()) * 12 +
+    (ref.getMonth() - birth.getMonth()) +
+    (ref.getDate() - birth.getDate()) / 30;
+  return Math.max(0, Math.round(months * 10) / 10);
+}
+
 /**
  * Format an ISO date string as DD.MM.YYYY (German standard).
  */

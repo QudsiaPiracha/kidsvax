@@ -9,6 +9,19 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
+// Mock Recharts for JSDOM
+jest.mock("recharts", () => {
+  const Original = jest.requireActual("recharts");
+  return {
+    ...Original,
+    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
+      <div data-testid="responsive-container" style={{ width: 400, height: 280 }}>
+        {children}
+      </div>
+    ),
+  };
+});
+
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
@@ -108,5 +121,22 @@ describe("GrowthPage", () => {
     });
     render(<GrowthPage />);
     await waitFor(() => expect(screen.getByText(/no measurements/i)).toBeInTheDocument());
+  });
+
+  it("should render growth chart when measurements exist", async () => {
+    setupFetch();
+    render(<GrowthPage />);
+    await waitFor(() => expect(screen.getByTestId("growth-chart")).toBeInTheDocument());
+  });
+
+  it("should NOT render growth chart when no measurements", async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes("/growth")) return Promise.resolve({ ok: true, json: () => Promise.resolve({ measurements: [] }) });
+      if (url.includes("/api/children/")) return Promise.resolve({ ok: true, json: () => Promise.resolve(childResponse) });
+      return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+    });
+    render(<GrowthPage />);
+    await waitFor(() => expect(screen.getByText(/no measurements/i)).toBeInTheDocument());
+    expect(screen.queryByTestId("growth-chart")).not.toBeInTheDocument();
   });
 });
