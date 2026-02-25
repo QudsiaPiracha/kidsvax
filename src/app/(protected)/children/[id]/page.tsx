@@ -81,8 +81,32 @@ export default function ChildDetailPage(): React.JSX.Element {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto p-4 pt-8 text-center">
-        <p className="text-gray-400">Loading...</p>
+      <div className="max-w-md mx-auto p-4 space-y-5">
+        <div className="h-5 w-16 animate-pulse rounded bg-sage-100" />
+        <div className="rounded-2xl border border-sage-100 bg-white p-5">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 animate-pulse rounded-full bg-sage-100" />
+            <div className="space-y-2">
+              <div className="h-5 w-28 animate-pulse rounded bg-gray-100" />
+              <div className="h-3 w-40 animate-pulse rounded bg-gray-50" />
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-sage-100 bg-white p-4">
+            <div className="h-3 w-16 animate-pulse rounded bg-gray-50 mb-2" />
+            <div className="h-5 w-12 animate-pulse rounded bg-gray-100" />
+          </div>
+          <div className="rounded-xl border border-sage-100 bg-white p-4">
+            <div className="h-3 w-20 animate-pulse rounded bg-gray-50 mb-2" />
+            <div className="h-5 w-12 animate-pulse rounded bg-gray-100" />
+          </div>
+        </div>
+        <div className="rounded-xl border border-sage-100 bg-white p-4 space-y-2">
+          <div className="h-3 w-20 animate-pulse rounded bg-gray-50" />
+          <div className="h-4 w-full animate-pulse rounded bg-gray-100" />
+          <div className="h-4 w-3/4 animate-pulse rounded bg-gray-100" />
+        </div>
       </div>
     );
   }

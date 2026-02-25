@@ -70,8 +70,22 @@ export default function DashboardPage(): React.JSX.Element {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto p-4 pt-8 text-center">
-        <p className="text-gray-400">Loading...</p>
+      <div className="max-w-md mx-auto p-4 space-y-4">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="h-7 w-32 animate-pulse rounded-lg bg-sage-100" />
+          <div className="h-5 w-16 animate-pulse rounded bg-gray-100" />
+        </div>
+        {[1, 2].map((i) => (
+          <div key={i} className="rounded-xl border border-sage-100 bg-white p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 animate-pulse rounded-full bg-sage-100" />
+              <div className="space-y-2">
+                <div className="h-4 w-24 animate-pulse rounded bg-gray-100" />
+                <div className="h-3 w-16 animate-pulse rounded bg-gray-50" />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KidsVax — How We Built a Full App with Claude Code</title>
+  <style>
+    :root {
+      --sage-50: #F0F5F0;
+      --sage-100: #E1EBE1;
+      --sage-500: #5B8C5A;
+      --sage-600: #4A7249;
+      --sage-700: #3A5938;
+      --terracotta: #C45C3E;
+      --terracotta-50: #FDF2EE;
+      --amber: #D4A030;
+      --amber-50: #FBF6EB;
+      --warm-white: #FAFAF8;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-500: #6B7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--gray-700);
+      line-height: 1.7;
+      background: var(--warm-white);
+    }
+
+    .container { max-width: 820px; margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--sage-700) 0%, var(--sage-500) 100%);
+      color: white;
+      padding: 80px 24px 60px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
+    .hero .subtitle { font-size: 1.15rem; opacity: 0.9; max-width: 600px; margin: 0 auto 32px; }
+    .hero .stats {
+      display: flex; gap: 32px; justify-content: center; flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    .hero .stat { text-align: center; }
+    .hero .stat-number { font-size: 2rem; font-weight: 800; }
+    .hero .stat-label { font-size: 0.8rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* TOC */
+    .toc {
+      background: white; border: 1px solid var(--gray-200); border-radius: 16px;
+      padding: 32px; margin: -30px auto 48px; position: relative; z-index: 1;
+      max-width: 820px;
+    }
+    .toc h2 { font-size: 1.1rem; color: var(--sage-600); margin-bottom: 16px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 8px; }
+    .toc a { color: var(--sage-600); text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Sections */
+    section { margin-bottom: 64px; }
+    h2 {
+      font-size: 1.6rem; font-weight: 700; color: var(--gray-900);
+      margin-bottom: 24px; padding-bottom: 12px;
+      border-bottom: 3px solid var(--sage-100);
+    }
+    h3 { font-size: 1.15rem; font-weight: 600; color: var(--gray-900); margin: 24px 0 12px; }
+    p { margin-bottom: 16px; }
+
+    /* Step cards */
+    .step {
+      background: white; border: 1px solid var(--gray-200); border-radius: 12px;
+      padding: 24px; margin-bottom: 20px; position: relative;
+      border-left: 4px solid var(--sage-500);
+    }
+    .step-number {
+      position: absolute; top: -12px; left: 16px;
+      background: var(--sage-500); color: white;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700;
+    }
+    .step h3 { margin-top: 4px; }
+    .step .what-we-said {
+      background: var(--gray-50); border-radius: 8px; padding: 12px 16px;
+      margin: 12px 0; border-left: 3px solid var(--sage-500);
+      font-style: italic; color: var(--gray-500); font-size: 0.9rem;
+    }
+    .step .what-we-said::before {
+      content: "What we told Claude Code:";
+      display: block; font-style: normal; font-weight: 600;
+      color: var(--sage-600); font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+    }
+    .step .what-happened {
+      background: var(--sage-50); border-radius: 8px; padding: 12px 16px;
+      margin: 12px 0; font-size: 0.9rem;
+    }
+    .step .what-happened::before {
+      content: "What Claude Code did:";
+      display: block; font-weight: 600; color: var(--sage-700);
+      font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 6px;
+    }
+
+    /* Code blocks */
+    pre {
+      background: var(--gray-900); color: #E5E7EB; border-radius: 8px;
+      padding: 16px; overflow-x: auto; font-size: 0.85rem;
+      margin: 12px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+    code {
+      background: var(--gray-100); padding: 2px 6px; border-radius: 4px;
+      font-size: 0.85em; font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+    pre code { background: none; padding: 0; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th { background: var(--sage-50); text-align: left; padding: 10px 12px; font-weight: 600; color: var(--sage-700); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--gray-200); }
+    tr:hover td { background: var(--gray-50); }
+
+    /* Callouts */
+    .callout {
+      border-radius: 12px; padding: 20px; margin: 20px 0;
+    }
+    .callout-tip { background: var(--sage-50); border: 1px solid var(--sage-100); }
+    .callout-warning { background: var(--amber-50); border: 1px solid #EFDAAF; }
+    .callout-error { background: var(--terracotta-50); border: 1px solid #FBE5DD; }
+    .callout-title { font-weight: 700; margin-bottom: 6px; font-size: 0.9rem; }
+    .callout-tip .callout-title { color: var(--sage-700); }
+    .callout-warning .callout-title { color: #86651E; }
+    .callout-error .callout-title { color: var(--terracotta); }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 11px; top: 0; bottom: 0;
+      width: 2px; background: var(--sage-100);
+    }
+    .timeline-item { position: relative; margin-bottom: 24px; }
+    .timeline-dot {
+      position: absolute; left: -32px; top: 4px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--sage-500); border: 3px solid white;
+      box-shadow: 0 0 0 2px var(--sage-100);
+    }
+    .timeline-item.completed .timeline-dot { background: var(--sage-500); }
+    .timeline-content {
+      background: white; border: 1px solid var(--gray-200);
+      border-radius: 8px; padding: 16px;
+    }
+    .timeline-label {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--gray-500); margin-bottom: 4px;
+    }
+    .timeline-title { font-weight: 600; color: var(--gray-900); }
+
+    /* Badge */
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 9999px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+    }
+    .badge-green { background: var(--sage-50); color: var(--sage-700); }
+    .badge-amber { background: var(--amber-50); color: #86651E; }
+    .badge-red { background: var(--terracotta-50); color: var(--terracotta); }
+
+    /* Footer */
+    footer {
+      text-align: center; padding: 40px 24px; color: var(--gray-500);
+      font-size: 0.85rem; border-top: 1px solid var(--gray-200);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.8rem; }
+      .hero .stats { gap: 20px; }
+      .hero .stat-number { font-size: 1.5rem; }
+      h2 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<div class="hero">
+  <div class="container">
+    <h1>How We Built KidsVax<br>with Claude Code</h1>
+    <p class="subtitle">
+      A step-by-step guide showing how we went from a one-line idea to a fully deployed web app
+      — using only natural language prompts in Claude Code. No prior code existed.
+    </p>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">441</div>
+        <div class="stat-label">Tests Passing</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">17</div>
+        <div class="stat-label">Features Built</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">72</div>
+        <div class="stat-label">Source Files</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">16</div>
+        <div class="stat-label">DB Tables</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TABLE OF CONTENTS ============ -->
+<div class="container">
+  <div class="toc">
+    <h2>What You'll Learn</h2>
+    <ol>
+      <li><a href="#what-is-kidsvax">What is KidsVax?</a></li>
+      <li><a href="#tools-used">Tools We Used</a></li>
+      <li><a href="#phase1">Phase 1 — Writing the Specification</a></li>
+      <li><a href="#phase2">Phase 2 — Project Setup & Scaffolding</a></li>
+      <li><a href="#phase3">Phase 3 — GitHub, Issues & Team Planning</a></li>
+      <li><a href="#phase4">Phase 4 — Building Features (TDD with Agent Teams)</a></li>
+      <li><a href="#phase5">Phase 5 — Deployment to Vercel & Supabase</a></li>
+      <li><a href="#phase6">Phase 6 — Fixing Deployment Errors</a></li>
+      <li><a href="#phase7">Phase 7 — Landing Page, Auth UI & Seed Data</a></li>
+      <li><a href="#lessons">Lessons Learned</a></li>
+      <li><a href="#final-result">Final Result</a></li>
+    </ol>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============ WHAT IS KIDSVAX ============ -->
+<section id="what-is-kidsvax">
+  <h2>What is KidsVax?</h2>
+  <p>
+    In Germany, every child has two paper booklets: the <strong>Gelbes Heft</strong> (yellow booklet for pediatric checkups)
+    and the <strong>Impfpass</strong> (vaccination passport). Parents must track 14 checkups, 6 dental exams, and
+    dozens of vaccinations across these two booklets — in German only.
+  </p>
+  <p>
+    <strong>KidsVax</strong> digitizes both into a single web app. It automatically generates schedules based on each child's
+    birthday, sends email reminders, tracks growth with charts, and even lets parents photograph their paper records
+    so AI can extract the data. It's bilingual (English default, German) and built for the German market.
+  </p>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">Key Point for Beginners</div>
+    <p style="margin:0">
+      We built this <em>entire application</em> by having conversations with Claude Code — an AI coding assistant that
+      runs in your terminal. We never opened a code editor. We described what we wanted in plain English, and Claude Code
+      wrote all the code, ran all the tests, set up the database, and deployed it.
+    </p>
+  </div>
+</section>
+
+<!-- ============ TOOLS USED ============ -->
+<section id="tools-used">
+  <h2>Tools We Used</h2>
+  <p>Before starting, here's what you need installed. Claude Code handles the rest.</p>
+
+  <table>
+    <thead>
+      <tr><th>Tool</th><th>What It Does</th><th>How to Get It</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Claude Code</strong></td><td>AI coding assistant (this is the star of the show)</td><td><code>npm install -g @anthropic-ai/claude-code</code></td></tr>
+      <tr><td><strong>Node.js 18+</strong></td><td>Runs JavaScript/TypeScript</td><td><a href="https://nodejs.org">nodejs.org</a></td></tr>
+      <tr><td><strong>Git</strong></td><td>Version control (tracks code changes)</td><td>Comes with macOS / <code>brew install git</code></td></tr>
+      <tr><td><strong>GitHub CLI</strong></td><td>Manages GitHub repos from terminal</td><td><code>brew install gh</code></td></tr>
+      <tr><td><strong>Supabase CLI</strong></td><td>Manages database</td><td><code>brew install supabase/tap/supabase</code></td></tr>
+      <tr><td><strong>Vercel CLI</strong></td><td>Deploys the website</td><td><code>npm install -g vercel</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ PHASE 1 ============ -->
+<section id="phase1">
+  <h2>Phase 1 — Writing the Specification</h2>
+  <p>
+    Every good project starts with a clear description of what you're building. We started by telling Claude Code
+    about our idea, and it helped us create a detailed specification document.
+  </p>
+
+  <div class="step">
+    <div class="step-number">1</div>
+    <h3>Describe Your Idea</h3>
+    <div class="what-we-said">
+      We described KidsVax: a mobile-friendly web app to digitize Germany's Gelbes Heft and Impfpass.
+      We explained the problem (paper booklets get lost, no reminders, German-only), the target users
+      (parents in Germany), and the features we wanted (auto schedules, AI scanning, growth charts, reminders).
+    </div>
+    <div class="what-happened">
+      Claude Code created <code>SPEC.md</code> — a 1,000+ line specification covering:
+      every feature in detail, the database design, API endpoints, UI mockups in text,
+      the tech stack decision, and a competitive analysis table comparing KidsVax to existing apps.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">2</div>
+    <h3>Create the TODO List</h3>
+    <div class="what-we-said">
+      We asked Claude Code to break the spec into actionable tasks with test criteria.
+    </div>
+    <div class="what-happened">
+      Claude Code created 17 detailed TODOs in <code>_project_specs/todos/active.md</code>, each with:
+      a description, acceptance criteria, test cases to write, and dependencies on other tasks.
+      These became our development roadmap.
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">Tip: Be Specific About What You Want</div>
+    <p style="margin:0">
+      The more detail you give Claude Code about your idea, the better the spec will be. Mention your target users,
+      what makes your app different, any regulations you must follow (like Germany's Masernschutzgesetz), and your
+      preferred technologies if you have any.
+    </p>
+  </div>
+</section>
+
+<!-- ============ PHASE 2 ============ -->
+<section id="phase2">
+  <h2>Phase 2 — Project Setup & Scaffolding</h2>
+  <p>
+    With the spec ready, we told Claude Code to set up the actual project. This is where code starts being written.
+  </p>
+
+  <div class="step">
+    <div class="step-number">3</div>
+    <h3>Initialize the Project</h3>
+    <div class="what-we-said">
+      We used the <code>/initialize-project</code> command, which is a skill built into our Claude Code setup.
+      It analyzes what kind of project you're building and sets up everything automatically.
+    </div>
+    <div class="what-happened">
+      Claude Code created:
+      <ul style="margin: 8px 0 0 20px;">
+        <li><code>package.json</code> with all dependencies (Next.js, React, Supabase, Tailwind, Jest, etc.)</li>
+        <li><code>tsconfig.json</code> for TypeScript strict mode</li>
+        <li><code>tailwind.config.ts</code> with our custom colors (sage green, terracotta, warm amber)</li>
+        <li><code>jest.config.js</code> for testing</li>
+        <li>The folder structure: <code>src/app/</code>, <code>src/lib/</code>, <code>src/components/</code></li>
+        <li>Internationalization setup with English and German message files</li>
+        <li><strong>14 initial configuration tests</strong> — all passing</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Gotcha We Hit</div>
+    <p style="margin:0">
+      <code>create-next-app</code> (the official Next.js setup tool) requires interactive prompts that don't work
+      in Claude Code's terminal. So Claude Code scaffolded the project manually — creating each config file by hand.
+      This actually gave us more control over the setup.
+    </p>
+  </div>
+</section>
+
+<!-- ============ PHASE 3 ============ -->
+<section id="phase3">
+  <h2>Phase 3 — GitHub, Issues & Team Planning</h2>
+  <p>
+    Now we needed version control, issue tracking, and a plan for building all 17 features.
+  </p>
+
+  <div class="step">
+    <div class="step-number">4</div>
+    <h3>Push to GitHub & Create Issues</h3>
+    <div class="what-we-said">
+      "Our repo is here https://github.com/QudsiaPiracha/kidsvax.git — this is a public repo.
+      Make sure the gitignore contains environment and no keys are pushed to GitHub.
+      We will also track all todos on GitHub issues so take our todos and put them as issues
+      on the GitHub project."
+    </div>
+    <div class="what-happened">
+      Claude Code:
+      <ul style="margin: 8px 0 0 20px;">
+        <li>Updated <code>.gitignore</code> to block <code>.env</code> files, API keys, and secrets</li>
+        <li>Pushed the initial code to GitHub</li>
+        <li>Created all <strong>17 GitHub issues</strong> with labels (<code>P0</code>, <code>P1</code>, <code>tdd</code>,
+            <code>backend</code>, <code>frontend</code>, <code>ai</code>, <code>infra</code>), full descriptions,
+            acceptance criteria, and cross-referenced dependencies</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">5</div>
+    <h3>Create Two Development Teams</h3>
+    <div class="what-we-said">
+      "Create 2 teams and divide work into those 2 teams in multiple agents along with quality agent
+      and security agent and start TDD. After every completion, commit with detailed information and
+      mark the task on GitHub as done."
+    </div>
+    <div class="what-happened">
+      Claude Code organized the work into two parallel teams:
+      <br><br>
+      <strong>Team Alpha (Database & Backend):</strong> TODO-02, 03, 06, 07, 08, 14, 15, 16<br>
+      <strong>Team Beta (Auth & Frontend):</strong> TODO-04, 05, 09, 10, 11, 12, 13, 17
+      <br><br>
+      Each team worked in isolated <strong>git worktrees</strong> (separate copies of the code)
+      so they wouldn't conflict with each other. Features were built in 5 waves, with independent
+      tasks running in parallel.
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHASE 4 ============ -->
+<section id="phase4">
+  <h2>Phase 4 — Building All 17 Features (TDD)</h2>
+  <p>
+    This is the main build phase. Every feature followed <strong>Test-Driven Development (TDD)</strong>:
+    write the test first (it fails), then write the code to make it pass.
+    Claude Code did this automatically for every feature.
+  </p>
+
+  <h3>Wave 1: Foundation (Parallel)</h3>
+  <div class="timeline">
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Alpha</div>
+        <div class="timeline-title">TODO-02: Database Schema (149 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          16 tables, Row Level Security policies, indexes, cascade deletes.
+          The entire database structure for children, exams, vaccines, milestones, growth, and more.
+        </p>
+      </div>
+    </div>
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Beta</div>
+        <div class="timeline-title">TODO-04: Authentication (17 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          Email/password signup, login, logout, magic link, password reset, middleware protection.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Wave 2: Data Layer (Parallel)</h3>
+  <div class="timeline">
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Alpha</div>
+        <div class="timeline-title">TODO-03: Seed Reference Data (39 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          20 U-exams, 11 vaccines, 22 schedule rules, 33 developmental milestones — all bilingual.
+        </p>
+      </div>
+    </div>
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Beta</div>
+        <div class="timeline-title">TODO-05: Child CRUD (25 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          Create, read, update, delete children. Service layer pattern with Zod validation.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Wave 3: Core Logic (Parallel)</h3>
+  <div class="timeline">
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Alpha</div>
+        <div class="timeline-title">TODO-06: Schedule Generation Engine (35 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          Pure functions that auto-generate U-exam and vaccination schedules from a child's date of birth.
+          Supports premature infants (3+1 hexavalent schedule).
+        </p>
+      </div>
+    </div>
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Beta</div>
+        <div class="timeline-title">TODO-17: Internationalization (28 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          Full English/German support. Date formatting (DD.MM.YYYY), number formatting, age formatting,
+          medical term translation.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Wave 4: APIs (Parallel)</h3>
+  <div class="timeline">
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Alpha</div>
+        <div class="timeline-title">TODO-07 + 08: U-Exam & Vaccination APIs (25 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          REST endpoints for exam records, vaccination records, and Masernschutzgesetz (measles law) compliance.
+        </p>
+      </div>
+    </div>
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Beta</div>
+        <div class="timeline-title">TODO-12 + 13: Growth & Milestones (20 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          Growth measurements with auto-BMI, WHO percentile calculations, milestone tracking.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Wave 5: AI & UI (Parallel)</h3>
+  <div class="timeline">
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Alpha</div>
+        <div class="timeline-title">TODO-14 + 15 + 16: AI Features & Reminders (40 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          AI document scanning (photograph paper records), AI growth insights (dietary/activity guidance),
+          email reminders via Resend.
+        </p>
+      </div>
+    </div>
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-label">Team Beta</div>
+        <div class="timeline-title">TODO-09 + 10 + 11: Dashboard & Timeline UI (36 tests)</div>
+        <p style="margin:8px 0 0;font-size:0.85rem;color:var(--gray-500)">
+          Multi-child dashboard with urgency ordering, child detail view, schedule timeline with age-phase grouping.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">How TDD Worked in Practice</div>
+    <p style="margin:0">
+      For each feature, Claude Code first wrote test files describing what the code <em>should</em> do.
+      Then it ran the tests (they failed — this is expected, called "RED"). Then it wrote the actual code.
+      Then it ran the tests again (they passed — "GREEN"). This ensures every feature works correctly
+      and nothing breaks when new code is added. We ended up with <strong>441 tests</strong> across <strong>31 test files</strong>.
+    </p>
+  </div>
+</section>
+
+<!-- ============ PHASE 5 ============ -->
+<section id="phase5">
+  <h2>Phase 5 — Deployment to Vercel & Supabase</h2>
+
+  <div class="step">
+    <div class="step-number">6</div>
+    <h3>Set Up Vercel (Website Hosting)</h3>
+    <div class="what-we-said">
+      "Set up Vercel and Supabase projects using their respective CLI."
+    </div>
+    <div class="what-happened">
+      Claude Code ran <code>vercel link</code> which connected our project to Vercel's hosting platform.
+      It then deployed the app, making it available at <strong>https://kidsvax.vercel.app</strong>.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">7</div>
+    <h3>Set Up Supabase (Database)</h3>
+    <div class="what-we-said">
+      "Supabase is now logged in."
+    </div>
+    <div class="what-happened">
+      Claude Code:
+      <ul style="margin: 8px 0 0 20px;">
+        <li>Created a new Supabase project called <code>kidsvax</code> in Frankfurt (EU) for GDPR compliance</li>
+        <li>Linked it to our local project</li>
+        <li>Pushed the database schema (16 tables with Row Level Security)</li>
+        <li>Seeded reference data (U-exams, vaccines, milestones)</li>
+        <li>Set all API keys as environment variables on Vercel</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">8</div>
+    <h3>Configure Auth Redirects</h3>
+    <div class="what-we-said">
+      "Can you set in Supabase base URL as https://kidsvax.vercel.app/"
+    </div>
+    <div class="what-happened">
+      Claude Code updated <code>supabase/config.toml</code> to set the site URL and redirect URLs,
+      then ran <code>supabase config push</code> to apply it to the remote project.
+      This means magic links and password resets redirect to the correct website.
+    </div>
+  </div>
+</section>
+
+<!-- ============ PHASE 6 ============ -->
+<section id="phase6">
+  <h2>Phase 6 — Fixing Deployment Errors</h2>
+  <p>
+    Things don't always work on the first try. Here are the real errors we hit and how Claude Code fixed them.
+  </p>
+
+  <div class="step" style="border-left-color: var(--terracotta);">
+    <div class="step-number" style="background: var(--terracotta);">!</div>
+    <h3>Error 1: Next.js 15 Named Exports</h3>
+    <div class="what-we-said">
+      "Also fix deployment errors on Vercel: 'ForgotPasswordPage' is not a valid Page export field."
+    </div>
+    <div class="what-happened">
+      Next.js 15 doesn't allow named exports alongside <code>export default</code> in page files.
+      Claude Code changed <code>export function ForgotPasswordPage</code> to just <code>function ForgotPasswordPage</code>
+      in all auth pages. Same fix applied to LoginPage, SignupPage, and layout files.
+    </div>
+  </div>
+
+  <div class="step" style="border-left-color: var(--terracotta);">
+    <div class="step-number" style="background: var(--terracotta);">!</div>
+    <h3>Error 2: Promise Params in Next.js 15</h3>
+    <div class="what-happened">
+      Next.js 15 changed how dynamic route parameters work — they're now Promises that must be awaited.
+      Claude Code updated all <code>[id]</code> pages from <code>params: { id: string }</code>
+      to <code>params: Promise&lt;{ id: string }&gt;</code> and added <code>await</code>.
+    </div>
+  </div>
+
+  <div class="step" style="border-left-color: var(--terracotta);">
+    <div class="step-number" style="background: var(--terracotta);">!</div>
+    <h3>Error 3: Security Vulnerability Block</h3>
+    <div class="what-happened">
+      Vercel blocked deployment because Next.js 15.1.0 had a known security vulnerability (CVE-2025-66478).
+      Claude Code upgraded to Next.js 15.5.12, ran all 441 tests (still passing), and redeployed successfully.
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">This is Normal</div>
+    <p style="margin:0">
+      Even experienced developers hit deployment errors. The key is that Claude Code can read error messages,
+      understand what's wrong, and fix them — often faster than a human developer could.
+      We hit 4 different error types and Claude Code fixed all of them within minutes.
+    </p>
+  </div>
+</section>
+
+<!-- ============ PHASE 7 ============ -->
+<section id="phase7">
+  <h2>Phase 7 — Landing Page, Auth UI & Test Data</h2>
+  <p>
+    With the app deployed, we refined the user-facing experience.
+  </p>
+
+  <div class="step">
+    <div class="step-number">9</div>
+    <h3>Build the Landing Page</h3>
+    <div class="what-we-said">
+      "Let's add a proper landing page and sign up/login."
+    </div>
+    <div class="what-happened">
+      Claude Code built a full landing page with:
+      hero section, 6 feature cards, trust badges (DSGVO compliant, bilingual, multi-child),
+      Masernschutzgesetz section, call-to-action, and footer. Plus polished login/signup/forgot-password pages
+      with consistent branding.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">10</div>
+    <h3>Wire Up the Dashboard</h3>
+    <div class="what-we-said">
+      "I click and nothing happens" (the Add Child button wasn't working)
+    </div>
+    <div class="what-happened">
+      The dashboard was rendering a static empty array instead of fetching real data.
+      Claude Code rewrote the dashboard to:
+      <ul style="margin: 8px 0 0 20px;">
+        <li>Fetch children from the API on page load</li>
+        <li>Show an inline form when "Add Child" is clicked</li>
+        <li>Submit to the API and navigate to the new child's detail page</li>
+        <li>Show skeleton loaders instead of "Loading..." text</li>
+        <li>Add a profile/settings page with password change</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">11</div>
+    <h3>Seed Test Data</h3>
+    <div class="what-we-said">
+      "Can you add seed data to this qudsia+kv1@workhub.ai — user ID is 7da6914a-c924-4901-a746-3b80b3b35cff"
+    </div>
+    <div class="what-happened">
+      Claude Code inserted test data via the Supabase REST API:
+      <ul style="margin: 8px 0 0 20px;">
+        <li><strong>Emma</strong> (18 months) — 6 completed U-exams, 1 upcoming, 9 vaccinations (2 overdue), 6 growth measurements</li>
+        <li><strong>Liam</strong> (4 years) — 8 completed U-exams, 1 upcoming, 5 growth measurements</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">12</div>
+    <h3>Add API Keys</h3>
+    <div class="what-we-said">
+      "Here are keys: For email we need to use Resend API key... Anthropic key is..."
+    </div>
+    <div class="what-happened">
+      Claude Code added both keys to Vercel's environment variables using the Vercel CLI.
+      This enables the AI features (document scanning, growth insights) and email reminders in production.
+    </div>
+  </div>
+</section>
+
+<!-- ============ LESSONS ============ -->
+<section id="lessons">
+  <h2>Lessons Learned</h2>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">1. Start with a Detailed Spec</div>
+    <p style="margin:0">
+      The better your initial description, the better everything downstream. Our SPEC.md was 1,000+ lines
+      and covered every feature, edge case, and design decision. This meant Claude Code rarely had to guess.
+    </p>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">2. Break Work into Small, Testable TODOs</div>
+    <p style="margin:0">
+      17 focused tasks were easier to build than one giant "build the app" instruction.
+      Each task had clear acceptance criteria and test cases, so Claude Code knew exactly when it was done.
+    </p>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">3. Use Parallel Teams for Speed</div>
+    <p style="margin:0">
+      By splitting work into two teams (Alpha for backend, Beta for frontend) and using git worktrees
+      for isolation, we built features in parallel without merge conflicts. This dramatically reduced build time.
+    </p>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">4. TDD Catches Bugs Early</div>
+    <p style="margin:0">
+      Writing tests first meant every feature was verified as soon as it was built.
+      When we upgraded Next.js or changed code, we could immediately confirm nothing broke
+      by running <code>npm test</code> — all 441 tests passed every time.
+    </p>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">5. Deployment Always Has Surprises</div>
+    <p style="margin:0">
+      Code that works locally can fail in production. We hit 4 different deployment errors
+      (named exports, Promise params, type mismatches, security CVE). Claude Code fixed all of them,
+      but expect this phase to take some back-and-forth.
+    </p>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-title">6. Test with Real Data</div>
+    <p style="margin:0">
+      An empty dashboard doesn't tell you if the app works. We seeded two test children with
+      realistic medical data (completed exams, overdue vaccinations, growth measurements) to properly
+      evaluate the experience.
+    </p>
+  </div>
+</section>
+
+<!-- ============ FINAL RESULT ============ -->
+<section id="final-result">
+  <h2>Final Result</h2>
+
+  <table>
+    <thead>
+      <tr><th>What</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Live URL</strong></td><td><a href="https://kidsvax.vercel.app">https://kidsvax.vercel.app</a></td></tr>
+      <tr><td><strong>GitHub</strong></td><td><a href="https://github.com/QudsiaPiracha/kidsvax">github.com/QudsiaPiracha/kidsvax</a></td></tr>
+      <tr><td><strong>Database</strong></td><td>Supabase (Frankfurt, EU) — <code>kzkasyxfwwzevzjupjhe</code></td></tr>
+      <tr><td><strong>Tests</strong></td><td>441 passing across 31 test files</td></tr>
+      <tr><td><strong>Features</strong></td><td>17 features, all GitHub issues closed</td></tr>
+      <tr><td><strong>Source Files</strong></td><td>72 TypeScript files</td></tr>
+      <tr><td><strong>Database Tables</strong></td><td>16 tables with Row Level Security</td></tr>
+      <tr><td><strong>Languages</strong></td><td>English (default) + German</td></tr>
+      <tr><td><strong>AI Provider</strong></td><td>Anthropic Claude (claude-sonnet-4-6)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>All 17 Features — Complete</h3>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Feature</th><th>Tests</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Project Scaffolding & Config</td><td>14</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>2</td><td>Database Schema (16 tables, RLS)</td><td>149</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>3</td><td>Seed Reference Data</td><td>39</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>4</td><td>Authentication (Email + Magic Link)</td><td>17</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>5</td><td>Child CRUD & Profiles</td><td>25</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>6</td><td>Schedule Generation Engine</td><td>35</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>7</td><td>U-Exam Records API</td><td>11</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>8</td><td>Vaccination Records & Masern Compliance</td><td>14</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>9</td><td>Multi-Child Dashboard UI</td><td>6</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>10</td><td>Child Detail Dashboard UI</td><td>15</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>11</td><td>Schedule Timeline UI</td><td>15</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>12</td><td>Growth Charts & Measurements</td><td>13</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>13</td><td>Developmental Milestones</td><td>7</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>14</td><td>AI Document Scanning</td><td>15</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>15</td><td>AI Growth Insights</td><td>14</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>16</td><td>Email Reminders</td><td>11</td><td><span class="badge badge-green">DONE</span></td></tr>
+      <tr><td>17</td><td>Internationalization (EN/DE)</td><td>28</td><td><span class="badge badge-green">DONE</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Complete Prompt History</h3>
+  <p>Here's a condensed version of every instruction we gave Claude Code, in order:</p>
+
+  <table>
+    <thead><tr><th>#</th><th>What We Said</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Described the KidsVax idea and asked for a spec</td><td>SPEC.md (1,000+ lines)</td></tr>
+      <tr><td>2</td><td><code>/initialize-project</code></td><td>Full project scaffolding, 14 tests</td></tr>
+      <tr><td>3</td><td>"Push to GitHub, create issues, create 2 teams, start TDD"</td><td>17 issues, 2 teams, parallel builds</td></tr>
+      <tr><td>4</td><td>(Claude Code worked autonomously through 5 waves)</td><td>All 17 features built, 441 tests</td></tr>
+      <tr><td>5</td><td>"Fix deployment errors on Vercel"</td><td>4 errors fixed</td></tr>
+      <tr><td>6</td><td>"Add a proper README"</td><td>README.md with full docs</td></tr>
+      <tr><td>7</td><td>"Supabase is now logged in"</td><td>DB project created, schema pushed</td></tr>
+      <tr><td>8</td><td>"Set Supabase base URL to kidsvax.vercel.app"</td><td>Auth config updated</td></tr>
+      <tr><td>9</td><td>"Add a proper landing page and sign up/login"</td><td>Full landing page + polished auth</td></tr>
+      <tr><td>10</td><td>"Here are the API keys" (Anthropic + Resend)</td><td>Keys set on Vercel</td></tr>
+      <tr><td>11</td><td>"I click and nothing happens"</td><td>Dashboard wired to real API</td></tr>
+      <tr><td>12</td><td>"We need a profile page to set password"</td><td>Profile page with password change</td></tr>
+      <tr><td>13</td><td>"Add seed data for user qudsia+kv1@workhub.ai"</td><td>2 children with full medical data</td></tr>
+      <tr><td>14</td><td>"Show skeleton loader instead of loading"</td><td>Skeleton UI added</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+
+<footer>
+  <p>
+    Built with <a href="https://claude.com/claude-code" style="color:var(--sage-600)">Claude Code</a> by Anthropic.
+    <br>
+    KidsVax &copy; 2026. Data hosted in EU (Frankfurt). DSGVO/GDPR compliant.
+  </p>
+</footer>
+
+</body>
+</html>
