@@ -86,12 +86,14 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Child 3: Maha (13 years old)
+-- Note: In production, this child was created via the app with ID b2c2f2d5-b1cc-4989-a22f-21333eb239cb
+-- For seed purposes we use a deterministic ID
 INSERT INTO public.children (id, user_id, name, date_of_birth, gender, is_premature, notes)
 VALUES (
   'aaaaaaaa-0000-0000-0000-000000000003',
   '7da6914a-c924-4901-a746-3b80b3b35cff',
   'Maha',
-  '2013-03-15',
+  '2012-12-10',
   'female',
   false,
   'Plays handball'

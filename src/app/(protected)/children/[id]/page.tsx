@@ -17,8 +17,10 @@ interface Child {
 interface UExamRecord {
   id: string;
   status: string;
+  status_badge?: string;
   exam_name?: string;
   u_exam?: { name: string };
+  u_exams?: { name: string; category: string };
   scheduled_date: string;
   completed_date?: string;
 }
@@ -126,12 +128,30 @@ export default function ChildDetailPage(): React.JSX.Element {
   }
 
   const age = calculateAge(child.date_of_birth);
-  const completedExams = uExams.filter((e) => e.status === "completed").length;
-  const completedVacc = vaccinations.filter((v) => v.status === "completed").length;
-  const overdueExams = uExams.filter((e) => e.status === "overdue");
+
+  // Split exam records by category (U-Exams vs J-Exams)
+  const uOnlyExams = uExams.filter((e) => getExamCategory(e) === "u_exam");
+  const jOnlyExams = uExams.filter((e) => getExamCategory(e) === "j_exam");
+
+  const completedU = uOnlyExams.filter((e) => getEffectiveStatus(e) === "completed").length;
+  const completedJ = jOnlyExams.filter((e) => getEffectiveStatus(e) === "completed").length;
+  const completedVacc = vaccinations.filter((v) => v.status === "completed" || v.status === "administered").length;
+
+  const overdueU = uOnlyExams.filter((e) => getEffectiveStatus(e) === "overdue");
+  const overdueJ = jOnlyExams.filter((e) => getEffectiveStatus(e) === "overdue");
   const overdueVacc = vaccinations.filter((v) => v.status === "overdue");
-  const upcomingExams = uExams.filter((e) => e.status === "scheduled" || e.status === "upcoming");
+
+  const upcomingU = uOnlyExams.filter((e) => {
+    const s = getEffectiveStatus(e);
+    return s === "scheduled" || s === "upcoming";
+  });
+  const upcomingJ = jOnlyExams.filter((e) => {
+    const s = getEffectiveStatus(e);
+    return s === "scheduled" || s === "upcoming";
+  });
   const upcomingVacc = vaccinations.filter((v) => v.status === "scheduled" || v.status === "upcoming");
+
+  const hasJExams = jOnlyExams.length > 0;
 
   return (
     <div className="max-w-md mx-auto p-4 space-y-5">
@@ -167,11 +187,17 @@ export default function ChildDetailPage(): React.JSX.Element {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className={`grid ${hasJExams ? "grid-cols-3" : "grid-cols-2"} gap-3`}>
         <div className="rounded-xl border border-sage-100 bg-white p-4">
           <p className="text-xs text-gray-500">U-Exams</p>
-          <p className="text-lg font-bold text-gray-900">{completedExams} / {uExams.length}</p>
+          <p className="text-lg font-bold text-gray-900">{completedU} / {uOnlyExams.length}</p>
         </div>
+        {hasJExams && (
+          <div className="rounded-xl border border-sage-100 bg-white p-4">
+            <p className="text-xs text-gray-500">J-Exams</p>
+            <p className="text-lg font-bold text-gray-900">{completedJ} / {jOnlyExams.length}</p>
+          </div>
+        )}
         <div className="rounded-xl border border-sage-100 bg-white p-4">
           <p className="text-xs text-gray-500">Vaccinations</p>
           <p className="text-lg font-bold text-gray-900">{completedVacc} / {vaccinations.length}</p>
@@ -179,13 +205,18 @@ export default function ChildDetailPage(): React.JSX.Element {
       </div>
 
       {/* Overdue */}
-      {(overdueExams.length > 0 || overdueVacc.length > 0) && (
+      {(overdueU.length > 0 || overdueJ.length > 0 || overdueVacc.length > 0) && (
         <div className="rounded-xl border border-terracotta-200 bg-terracotta-50 p-4">
           <h2 className="text-sm font-semibold text-terracotta-600 mb-2">Overdue</h2>
           <ul className="space-y-1">
-            {overdueExams.map((e) => (
+            {overdueU.map((e) => (
               <li key={e.id} className="text-sm text-gray-700">
-                {e.exam_name || e.u_exam?.name || "U-Exam"} — {formatDate(e.scheduled_date)}
+                {getExamName(e)} — {formatDate(e.scheduled_date)}
+              </li>
+            ))}
+            {overdueJ.map((e) => (
+              <li key={e.id} className="text-sm text-gray-700">
+                {getExamName(e)} — {formatDate(e.scheduled_date)}
               </li>
             ))}
             {overdueVacc.map((v) => (
@@ -198,13 +229,18 @@ export default function ChildDetailPage(): React.JSX.Element {
       )}
 
       {/* Upcoming */}
-      {(upcomingExams.length > 0 || upcomingVacc.length > 0) && (
+      {(upcomingU.length > 0 || upcomingJ.length > 0 || upcomingVacc.length > 0) && (
         <div className="rounded-xl border border-warm-amber-200 bg-warm-amber-50 p-4">
           <h2 className="text-sm font-semibold text-warm-amber-600 mb-2">Coming Up</h2>
           <ul className="space-y-1">
-            {[...upcomingExams.slice(0, 3)].map((e) => (
+            {[...upcomingU.slice(0, 3)].map((e) => (
               <li key={e.id} className="text-sm text-gray-700">
-                {e.exam_name || e.u_exam?.name || "U-Exam"} — {formatDate(e.scheduled_date)}
+                {getExamName(e)} — {formatDate(e.scheduled_date)}
+              </li>
+            ))}
+            {[...upcomingJ.slice(0, 3)].map((e) => (
+              <li key={e.id} className="text-sm text-gray-700">
+                {getExamName(e)} — {formatDate(e.scheduled_date)}
               </li>
             ))}
             {[...upcomingVacc.slice(0, 3)].map((v) => (
@@ -286,4 +322,16 @@ function formatDate(dateStr: string): string {
   return `${d.getDate().toString().padStart(2, "0")}.${(d.getMonth() + 1)
     .toString()
     .padStart(2, "0")}.${d.getFullYear()}`;
+}
+
+function getExamCategory(record: UExamRecord): string {
+  return record.u_exams?.category ?? "u_exam";
+}
+
+function getExamName(record: UExamRecord): string {
+  return record.exam_name || record.u_exams?.name || record.u_exam?.name || "Exam";
+}
+
+function getEffectiveStatus(record: { status: string; status_badge?: string }): string {
+  return record.status_badge ?? record.status;
 }
