@@ -62,14 +62,14 @@ function calculateUExamDate(
   return addMonths(dob, recommendedAgeMonths);
 }
 
-/** Generate U-exam schedule records for a child. Only includes u_exam category. */
+/** Generate U-exam schedule records for a child. Includes u_exam and j_exam categories. */
 export function generateUExamSchedule(
   input: UExamScheduleInput
 ): GeneratedUExamRecord[] {
   const { childId, dateOfBirth, uExams } = input;
 
   return uExams
-    .filter((exam) => exam.category === "u_exam")
+    .filter((exam) => exam.category === "u_exam" || exam.category === "j_exam")
     .map((exam) => ({
       child_id: childId,
       u_exam_id: exam.id,

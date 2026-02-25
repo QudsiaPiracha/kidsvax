@@ -897,7 +897,7 @@ describe("Edge Cases", () => {
     }
   });
 
-  it("should only include u_exam category exams (not j_exam or z_exam)", () => {
+  it("should include u_exam and j_exam categories but not z_exam", () => {
     const allExams: UExam[] = [
       ...U_EXAMS,
       {
@@ -909,6 +909,16 @@ describe("Edge Cases", () => {
         tolerance_to_months: 170,
         description_en: "Youth examination",
         description_de: "Jugendgesundheitsuntersuchung",
+      },
+      {
+        id: "00000000-0000-0000-0000-000000000014",
+        name: "J2",
+        category: "j_exam",
+        recommended_age_months: 192,
+        tolerance_from_months: 190,
+        tolerance_to_months: 206,
+        description_en: "Youth examination 16-17",
+        description_de: "Jugendgesundheitsuntersuchung 16-17",
       },
       {
         id: "00000000-0000-0000-0000-000000000015",
@@ -928,10 +938,39 @@ describe("Edge Cases", () => {
       uExams: allExams,
     });
 
-    // Should still be 12 records (only u_exam category)
-    expect(records).toHaveLength(12);
+    // 12 u_exams + 2 j_exams = 14 records (z_exam excluded)
+    expect(records).toHaveLength(14);
     const examIds = records.map((r) => r.u_exam_id);
-    expect(examIds).not.toContain("00000000-0000-0000-0000-000000000013");
-    expect(examIds).not.toContain("00000000-0000-0000-0000-000000000015");
+    expect(examIds).toContain("00000000-0000-0000-0000-000000000013"); // J1 included
+    expect(examIds).toContain("00000000-0000-0000-0000-000000000014"); // J2 included
+    expect(examIds).not.toContain("00000000-0000-0000-0000-000000000015"); // Z1 excluded
+  });
+
+  it("should calculate J1 scheduled_date as DOB + 144 months (12 years)", () => {
+    const allExams: UExam[] = [
+      ...U_EXAMS,
+      {
+        id: "00000000-0000-0000-0000-000000000013",
+        name: "J1",
+        category: "j_exam",
+        recommended_age_months: 144,
+        tolerance_from_months: 142,
+        tolerance_to_months: 170,
+        description_en: "Youth examination",
+        description_de: "Jugendgesundheitsuntersuchung",
+      },
+    ];
+
+    const records = generateUExamSchedule({
+      childId: CHILD_ID,
+      dateOfBirth: new Date(2025, 0, 15),
+      uExams: allExams,
+    });
+
+    const j1 = records.find(
+      (r) => r.u_exam_id === "00000000-0000-0000-0000-000000000013"
+    );
+    // Jan 15, 2025 + 144 months = Jan 15, 2037
+    expect(j1?.scheduled_date).toBe("2037-01-15");
   });
 });
