@@ -1,5 +1,6 @@
 /**
  * Transforms WHO percentile data into chart-ready curve arrays.
+ * Standard 7-percentile system: P3, P10, P25, P50, P75, P90, P97.
  */
 
 import { getTable, calculatePercentile } from "./percentile";
@@ -8,18 +9,22 @@ import { calculateAgeMonths } from "./age-utils";
 export interface CurvePoint {
   ageMonths: number;
   p3: number;
-  p15: number;
+  p10: number;
+  p25: number;
   p50: number;
-  p85: number;
+  p75: number;
+  p90: number;
   p97: number;
 }
 
 export interface ChartDataPoint {
   ageMonths: number;
   p3?: number;
-  p15?: number;
+  p10?: number;
+  p25?: number;
   p50?: number;
-  p85?: number;
+  p75?: number;
+  p90?: number;
   p97?: number;
   value?: number;
   date?: string;
@@ -64,13 +69,15 @@ export function buildChartData(
   const curves = getPercentileCurves(gender, metric);
   const maxAge = getMaxAgeForMeasurement(metric);
 
-  // Build curve points (only if applicable)
+  // Build curve points
   const curvePoints: ChartDataPoint[] = curves.map((c) => ({
     ageMonths: c.ageMonths,
     p3: c.p3,
-    p15: c.p15,
+    p10: c.p10,
+    p25: c.p25,
     p50: c.p50,
-    p85: c.p85,
+    p75: c.p75,
+    p90: c.p90,
     p97: c.p97,
   }));
 
@@ -94,7 +101,7 @@ export function buildChartData(
 
   // Check if child data falls within the curve range
   const childMaxAge = Math.max(...childPoints.map((p) => p.ageMonths), 0);
-  const showCurves = childMaxAge <= maxAge + 6; // show curves if within range + small margin
+  const showCurves = childMaxAge <= maxAge + 6;
 
   // Merge and sort
   const merged = showCurves

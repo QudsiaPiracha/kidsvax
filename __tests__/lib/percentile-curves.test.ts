@@ -5,14 +5,14 @@ import {
 } from "@/lib/percentile-curves";
 
 describe("getPercentileCurves", () => {
-  it("should return 8 data points for weight", () => {
+  it("should return 21 data points for weight (monthly 0-12, then 15,18,21,24,30,36,48,60)", () => {
     const curves = getPercentileCurves("male", "weight");
-    expect(curves).toHaveLength(8);
+    expect(curves).toHaveLength(21);
   });
 
-  it("should return 6 data points for head circumference", () => {
+  it("should return 16 data points for head circumference (monthly 0-12, then 18,24,36)", () => {
     const curves = getPercentileCurves("male", "head");
-    expect(curves).toHaveLength(6);
+    expect(curves).toHaveLength(16);
   });
 
   it("should sort by ageMonths ascending", () => {
@@ -22,13 +22,15 @@ describe("getPercentileCurves", () => {
     }
   });
 
-  it("should include all percentile fields", () => {
+  it("should include all 7 percentile fields", () => {
     const curves = getPercentileCurves("male", "weight");
     for (const point of curves) {
       expect(point).toHaveProperty("p3");
-      expect(point).toHaveProperty("p15");
+      expect(point).toHaveProperty("p10");
+      expect(point).toHaveProperty("p25");
       expect(point).toHaveProperty("p50");
-      expect(point).toHaveProperty("p85");
+      expect(point).toHaveProperty("p75");
+      expect(point).toHaveProperty("p90");
       expect(point).toHaveProperty("p97");
     }
   });

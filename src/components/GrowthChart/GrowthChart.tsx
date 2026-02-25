@@ -28,12 +28,6 @@ export interface GrowthChartProps {
   dateOfBirth: string;
 }
 
-const METRIC_LABELS: Record<MetricType, string> = {
-  weight: "Weight",
-  height: "Height",
-  head: "Head",
-};
-
 const METRIC_UNITS: Record<MetricType, string> = {
   weight: "kg",
   height: "cm",
@@ -42,27 +36,30 @@ const METRIC_UNITS: Record<MetricType, string> = {
 
 // Tailwind color values (extracted for Recharts which needs raw hex)
 const COLORS = {
+  sage50: "#F0F5F0",
   sage100: "#E1EBE1",
+  sage200: "#C3D7C3",
   sage500: "#5B8C5A",
   sage600: "#4A7249",
-  warmAmber100: "#F7EDD7",
-  warmAmber300: "#E7C887",
-  terracotta100: "#FBE5DD",
-  terracotta300: "#F2B099",
   gray200: "#e5e7eb",
   gray400: "#9ca3af",
+  gray500: "#6b7280",
 };
 
 function CustomTooltip({
   active,
   payload,
+  metric,
 }: {
   active?: boolean;
   payload?: Array<{ payload: ChartDataPoint }>;
+  metric: MetricType;
 }) {
   if (!active || !payload?.length) return null;
   const point = payload[0].payload;
   if (point.value == null) return null;
+
+  const unit = METRIC_UNITS[metric];
 
   return (
     <div className="rounded-lg border border-sage-100 bg-white px-3 py-2 shadow-sm text-sm">
@@ -71,7 +68,9 @@ function CustomTooltip({
           {new Date(point.date).toLocaleDateString("de-DE")}
         </p>
       )}
-      <p className="font-medium text-gray-900">{point.value}</p>
+      <p className="font-medium text-gray-900">
+        {point.value} {unit}
+      </p>
       {point.percentile != null && (
         <p className="text-xs text-sage-600">
           {point.percentile}th percentile
@@ -98,10 +97,24 @@ export function GrowthChart({
 
   const [activeTab, setActiveTab] = useState<MetricType>("weight");
 
+  // Length vs Height label: "Length" when child < 24 months, "Height" otherwise
+  function getMetricLabel(tab: MetricType): string {
+    if (tab === "weight") return "Weight";
+    if (tab === "head") return "Head";
+    return currentAgeMonths < 24 ? "Length" : "Height";
+  }
+
   const chartData = buildChartData(measurements, dateOfBirth, gender, activeTab);
   const hasCurves = chartData.some((d) => d.p50 != null);
   const hasValues = chartData.some((d) => d.value != null);
   const maxAge = getMaxAgeForMeasurement(activeTab);
+
+  const yAxisLabel =
+    activeTab === "height"
+      ? currentAgeMonths < 24
+        ? "cm (length)"
+        : "cm (height)"
+      : METRIC_UNITS[activeTab];
 
   if (!hasValues) {
     return (
@@ -117,12 +130,12 @@ export function GrowthChart({
                   : "border border-sage-100 text-gray-600 hover:bg-gray-50"
               }`}
             >
-              {METRIC_LABELS[tab]}
+              {getMetricLabel(tab)}
             </button>
           ))}
         </div>
         <p className="text-center text-sm text-gray-400 py-8">
-          No {METRIC_LABELS[activeTab].toLowerCase()} data recorded yet.
+          No {getMetricLabel(activeTab).toLowerCase()} data recorded yet.
         </p>
       </div>
     );
@@ -143,7 +156,7 @@ export function GrowthChart({
                 : "border border-sage-100 text-gray-600 hover:bg-gray-50"
             }`}
           >
-            {METRIC_LABELS[tab]}
+            {getMetricLabel(tab)}
           </button>
         ))}
       </div>
@@ -162,7 +175,7 @@ export function GrowthChart({
           <YAxis
             tick={{ fontSize: 11, fill: COLORS.gray400 }}
             label={{
-              value: METRIC_UNITS[activeTab],
+              value: yAxisLabel,
               angle: -90,
               position: "insideLeft",
               offset: 15,
@@ -170,48 +183,90 @@ export function GrowthChart({
               fill: COLORS.gray400,
             }}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip metric={activeTab} />} />
 
           {hasCurves && (
             <>
-              {/* Concern zone (below p3) */}
+              {/* Percentile zone bands — each Area fills from one curve to the next */}
+              {/* P3→P10 zone (outer low) */}
               <Area
-                dataKey="p3"
+                dataKey="p10"
+                baseValue="dataMin"
                 stroke="none"
-                fill={COLORS.terracotta100}
-                fillOpacity={0.6}
+                fill={COLORS.sage50}
+                fillOpacity={0.3}
                 isAnimationActive={false}
                 connectNulls
               />
-              {/* Monitor zone (p3-p15) */}
+              {/* P10→P25 zone */}
               <Area
-                dataKey="p15"
+                dataKey="p25"
+                baseValue="dataMin"
                 stroke="none"
-                fill={COLORS.warmAmber100}
-                fillOpacity={0.6}
-                isAnimationActive={false}
-                connectNulls
-              />
-              {/* Healthy zone (p15-p85) */}
-              <Area
-                dataKey="p85"
-                stroke="none"
-                fill={COLORS.sage100}
-                fillOpacity={0.6}
-                isAnimationActive={false}
-                connectNulls
-              />
-              {/* Monitor zone (p85-p97) */}
-              <Area
-                dataKey="p97"
-                stroke="none"
-                fill={COLORS.warmAmber100}
+                fill={COLORS.sage50}
                 fillOpacity={0.4}
                 isAnimationActive={false}
                 connectNulls
               />
+              {/* P25→P75 zone (healthy middle) */}
+              <Area
+                dataKey="p75"
+                baseValue="dataMin"
+                stroke="none"
+                fill={COLORS.sage100}
+                fillOpacity={0.5}
+                isAnimationActive={false}
+                connectNulls
+              />
+              {/* P75→P90 zone */}
+              <Area
+                dataKey="p90"
+                baseValue="dataMin"
+                stroke="none"
+                fill={COLORS.sage50}
+                fillOpacity={0.4}
+                isAnimationActive={false}
+                connectNulls
+              />
+              {/* P90→P97 zone (outer high) */}
+              <Area
+                dataKey="p97"
+                baseValue="dataMin"
+                stroke="none"
+                fill={COLORS.sage50}
+                fillOpacity={0.3}
+                isAnimationActive={false}
+                connectNulls
+              />
 
-              {/* Percentile reference lines */}
+              {/* 7 percentile reference lines */}
+              <Line
+                dataKey="p3"
+                stroke={COLORS.gray400}
+                strokeWidth={0.5}
+                strokeDasharray="2 4"
+                dot={false}
+                isAnimationActive={false}
+                connectNulls
+              />
+              <Line
+                dataKey="p10"
+                stroke={COLORS.gray400}
+                strokeWidth={0.5}
+                strokeDasharray="2 4"
+                dot={false}
+                isAnimationActive={false}
+                connectNulls
+              />
+              <Line
+                dataKey="p25"
+                stroke={COLORS.sage200}
+                strokeWidth={0.75}
+                strokeDasharray="3 3"
+                dot={false}
+                isAnimationActive={false}
+                connectNulls
+              />
               <Line
                 dataKey="p50"
                 stroke={COLORS.sage500}
@@ -222,19 +277,28 @@ export function GrowthChart({
                 connectNulls
               />
               <Line
-                dataKey="p3"
-                stroke={COLORS.terracotta300}
-                strokeWidth={1}
+                dataKey="p75"
+                stroke={COLORS.sage200}
+                strokeWidth={0.75}
                 strokeDasharray="3 3"
                 dot={false}
                 isAnimationActive={false}
                 connectNulls
               />
               <Line
+                dataKey="p90"
+                stroke={COLORS.gray400}
+                strokeWidth={0.5}
+                strokeDasharray="2 4"
+                dot={false}
+                isAnimationActive={false}
+                connectNulls
+              />
+              <Line
                 dataKey="p97"
-                stroke={COLORS.terracotta300}
-                strokeWidth={1}
-                strokeDasharray="3 3"
+                stroke={COLORS.gray400}
+                strokeWidth={0.5}
+                strokeDasharray="2 4"
                 dot={false}
                 isAnimationActive={false}
                 connectNulls
@@ -257,17 +321,9 @@ export function GrowthChart({
 
       {/* Legend / info */}
       {hasCurves ? (
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400">
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-4 rounded" style={{ background: COLORS.sage100 }} /> Healthy (p15-p85)
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-4 rounded" style={{ background: COLORS.warmAmber100 }} /> Monitor
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block h-2 w-4 rounded" style={{ background: COLORS.terracotta100 }} /> Concern
-          </span>
-        </div>
+        <p data-testid="percentile-legend" className="mt-3 text-xs text-gray-400 text-center">
+          WHO percentile curves (P3–P97)
+        </p>
       ) : (
         <p data-testid="no-percentile-note" className="mt-2 text-xs text-gray-400 text-center">
           Percentile reference available for children up to {Math.floor(maxAge / 12)} years.

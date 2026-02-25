@@ -1,8 +1,4 @@
-import {
-  anonymizeChildData,
-  parseInsightsResult,
-  runInsightsAgent,
-} from "@/lib/agents/insights-agent";
+import { generateGrowthInsights } from "@/lib/growth-insights";
 import type { ServiceResult } from "@/lib/services/children";
 
 // -----------------------------------------------------------------------
@@ -24,6 +20,7 @@ interface SupabaseQueryLike {
   insert: (data: Record<string, unknown>) => SupabaseQueryLike;
   delete: () => SupabaseQueryLike;
   eq: (col: string, val: string) => SupabaseQueryLike;
+  lt: (col: string, val: string) => SupabaseQueryLike;
   gte: (col: string, val: string) => SupabaseQueryLike;
   order: (col: string, opts?: Record<string, boolean>) => Promise<{
     data: Record<string, unknown>[] | null;
@@ -105,33 +102,44 @@ export async function refreshInsights(
     .eq("child_id", childId)
     .order("measured_date", { ascending: true });
 
-  const anonymized = anonymizeChildData(
-    child as { date_of_birth: string; gender: "male" | "female" },
-    (measurements ?? []) as Array<{ height_cm: number; weight_kg: number; measured_date: string }>,
-    []
-  );
+  // Invalidate old cached insights for this child
+  await supabase.from("ai_insights").delete().eq("child_id", childId)
+    .lt("expires_at", new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000).toISOString())
+    .order("created_at", { ascending: false });
 
-  // Invalidate old cached insights
-  await (supabase.from("ai_insights").delete().eq("child_id", childId) as unknown as
-    { gte: (col: string, val: string) => Promise<{ error: unknown }> }
-  ).gte("expires_at", "1970-01-01");
+  // Generate insights locally from WHO percentile data
+  const dateOfBirth = child?.date_of_birth as string;
+  const gender = child?.gender as string;
+  const measArray = (measurements ?? []).map((m) => ({
+    measured_date: m.measured_date as string,
+    weight_kg: m.weight_kg as number | null,
+    height_cm: m.height_cm as number | null,
+    head_circumference_cm: m.head_circumference_cm as number | null,
+  }));
 
-  const insightsResult = await runInsightsAgent(anonymized);
-  const parsed = typeof insightsResult === "string"
-    ? parseInsightsResult(insightsResult)
-    : insightsResult;
+  const insights = generateGrowthInsights({
+    measurements: measArray,
+    dateOfBirth,
+    gender,
+  });
 
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: saved, error: saveErr } = await supabase
     .from("ai_insights")
     .insert({
       child_id: childId,
-      content: JSON.stringify(parsed),
+      insight_type: "growth",
+      content: insights,
       language,
       expires_at: expiresAt,
     } as Record<string, unknown>)
-    .select().single();
+    .select("*").single();
 
-  if (saveErr) return { status: 500, body: { error: "Failed to save insights" } };
+  if (saveErr) {
+    const msg = typeof saveErr === "object" && saveErr !== null && "message" in saveErr
+      ? (saveErr as { message: string }).message
+      : "Unknown error saving insights";
+    return { status: 500, body: { error: msg } };
+  }
   return { status: 201, body: { insight: saved } };
 }

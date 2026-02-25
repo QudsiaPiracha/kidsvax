@@ -50,7 +50,7 @@ describe("GrowthChart", () => {
     expect(weightTab).toHaveClass("bg-sage-500");
   });
 
-  it("should render height tab", () => {
+  it("should render length tab for young child (< 24 months)", () => {
     render(
       <GrowthChart
         measurements={youngChildMeasurements}
@@ -58,7 +58,9 @@ describe("GrowthChart", () => {
         dateOfBirth="2024-08-24"
       />
     );
-    expect(screen.getByTestId("tab-height")).toBeInTheDocument();
+    const tab = screen.getByTestId("tab-height");
+    expect(tab).toBeInTheDocument();
+    expect(tab).toHaveTextContent("Length");
   });
 
   it("should render head tab for young child", () => {
@@ -107,7 +109,7 @@ describe("GrowthChart", () => {
     expect(screen.getByTestId("no-percentile-note")).toBeInTheDocument();
   });
 
-  it("should show legend for young children with percentile bands", () => {
+  it("should show WHO percentile legend for young children", () => {
     render(
       <GrowthChart
         measurements={youngChildMeasurements}
@@ -115,9 +117,8 @@ describe("GrowthChart", () => {
         dateOfBirth="2024-08-24"
       />
     );
-    expect(screen.getByText(/healthy/i)).toBeInTheDocument();
-    expect(screen.getByText(/monitor/i)).toBeInTheDocument();
-    expect(screen.getByText(/concern/i)).toBeInTheDocument();
+    expect(screen.getByTestId("percentile-legend")).toBeInTheDocument();
+    expect(screen.getByText(/percentile/i)).toBeInTheDocument();
   });
 
   it("should show empty metric message when no data for selected tab", async () => {
@@ -131,9 +132,9 @@ describe("GrowthChart", () => {
         dateOfBirth="2024-08-24"
       />
     );
-    // Switch to height tab
+    // Switch to height/length tab — label is "Length" for children < 24 months
     await userEvent.click(screen.getByTestId("tab-height"));
-    expect(screen.getByText(/no height data/i)).toBeInTheDocument();
+    expect(screen.getByText(/no length data/i)).toBeInTheDocument();
   });
 
   it("should render responsive container", () => {

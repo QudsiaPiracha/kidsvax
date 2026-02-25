@@ -171,11 +171,19 @@ export default function GrowthPage(): React.JSX.Element {
 
       {/* Growth Chart */}
       {child && measurements.length > 0 && (
-        <GrowthChart
-          measurements={measurements}
-          gender={child.gender}
-          dateOfBirth={child.date_of_birth}
-        />
+        <>
+          <GrowthChart
+            measurements={measurements}
+            gender={child.gender}
+            dateOfBirth={child.date_of_birth}
+          />
+          <button
+            onClick={() => router.push(`/children/${id}/insights`)}
+            className="w-full text-center text-sm text-sage-600 font-medium hover:text-sage-700 transition-colors py-2"
+          >
+            View Growth Insights →
+          </button>
+        </>
       )}
 
       {measurements.length === 0 ? (

@@ -38,20 +38,20 @@ const CACHED_INSIGHT = {
   id: "insight-1",
   child_id: "child-1",
   content: JSON.stringify({
-    trend_summary: "Growing well",
-    dietary_suggestions: ["More iron-rich foods"],
-    doctor_questions: ["Ask about vitamin D"],
-    disclaimer: "General guidance, not medical advice.",
+    growth_summary: "Growing well",
+    dietary_suggestions: "Continue balanced meals",
+    activity_tips: "Encourage active play",
+    doctor_questions: "Is growth on track?",
   }),
   language: "en",
   created_at: new Date().toISOString(),
   expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
 };
 
-const MOCK_RUN_AGENT = jest.fn();
-jest.mock("@/lib/agents/insights-agent", () => ({
-  ...jest.requireActual("@/lib/agents/insights-agent"),
-  runInsightsAgent: (...args: unknown[]) => MOCK_RUN_AGENT(...args),
+// Mock the local insights generator
+const MOCK_GENERATE = jest.fn();
+jest.mock("@/lib/growth-insights", () => ({
+  generateGrowthInsights: (...args: unknown[]) => MOCK_GENERATE(...args),
 }));
 
 // -----------------------------------------------------------------------
@@ -128,10 +128,10 @@ describe("GET /api/children/[id]/insights", () => {
       ...CACHED_INSIGHT,
       language: "de",
       content: JSON.stringify({
-        trend_summary: "Wachstum normal",
-        dietary_suggestions: ["Mehr Eisen"],
-        doctor_questions: ["Fragen Sie nach Vitamin D"],
-        disclaimer: "Allgemeine Hinweise, keine medizinische Beratung.",
+        growth_summary: "Wachstum normal",
+        dietary_suggestions: "Ausgewogene Mahlzeiten",
+        activity_tips: "Aktives Spielen",
+        doctor_questions: "Ist das Wachstum auf Kurs?",
       }),
     };
     const childChain = {
@@ -172,15 +172,15 @@ describe("GET /api/children/[id]/insights", () => {
 describe("POST /api/children/[id]/insights/refresh", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    MOCK_RUN_AGENT.mockResolvedValue({
-      trend_summary: "Growing well",
-      dietary_suggestions: ["More iron-rich foods"],
-      doctor_questions: ["Ask about vitamin D"],
-      disclaimer: "General guidance, not medical advice.",
+    MOCK_GENERATE.mockReturnValue({
+      growth_summary: "Growing well",
+      dietary_suggestions: "Continue balanced meals",
+      activity_tips: "Encourage active play",
+      doctor_questions: "Is growth on track?",
     });
   });
 
-  it("should generate new insights", async () => {
+  it("should generate new insights using local generator", async () => {
     const childChain = {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
@@ -193,7 +193,7 @@ describe("POST /api/children/[id]/insights/refresh", () => {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       order: jest.fn().mockResolvedValue({
-        data: [{ height_cm: 75, weight_kg: 9.5, measured_date: "2024-06-15" }],
+        data: [{ height_cm: 75, weight_kg: 9.5, head_circumference_cm: null, measured_date: "2024-06-15" }],
         error: null,
       }),
     };
@@ -201,7 +201,8 @@ describe("POST /api/children/[id]/insights/refresh", () => {
       select: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      gte: jest.fn().mockResolvedValue({ error: null }),
+      lt: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({ data: [], error: null }),
     };
     const insertChain = {
       select: jest.fn().mockReturnThis(),
@@ -224,6 +225,18 @@ describe("POST /api/children/[id]/insights/refresh", () => {
 
     const result = await refreshInsights("child-1", sb as never, "en");
     expect(result.status).toBe(201);
+    expect(MOCK_GENERATE).toHaveBeenCalledWith({
+      measurements: [{ height_cm: 75, weight_kg: 9.5, head_circumference_cm: null, measured_date: "2024-06-15" }],
+      dateOfBirth: "2023-06-15",
+      gender: "male",
+    });
+    // Verify insight_type and content (as object, not stringified) are included in insert
+    expect(insertChain.insert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        insight_type: "growth",
+        content: expect.objectContaining({ growth_summary: expect.any(String) }),
+      })
+    );
   });
 
   it("should invalidate old cached insights", async () => {
@@ -239,7 +252,7 @@ describe("POST /api/children/[id]/insights/refresh", () => {
       select: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       order: jest.fn().mockResolvedValue({
-        data: [{ height_cm: 75, weight_kg: 9.5, measured_date: "2024-06-15" }],
+        data: [{ height_cm: 75, weight_kg: 9.5, head_circumference_cm: null, measured_date: "2024-06-15" }],
         error: null,
       }),
     };
@@ -247,7 +260,8 @@ describe("POST /api/children/[id]/insights/refresh", () => {
       select: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      gte: jest.fn().mockResolvedValue({ error: null }),
+      lt: jest.fn().mockReturnThis(),
+      order: jest.fn().mockResolvedValue({ data: [], error: null }),
     };
     const insertChain = {
       select: jest.fn().mockReturnThis(),

@@ -85,7 +85,9 @@ export default function InsightsPage(): React.JSX.Element {
       if (res.ok) {
         await fetchData();
       } else {
-        setError("Could not generate insights. The AI service may be temporarily unavailable.");
+        const errData = await res.json().catch(() => ({}));
+        const msg = (errData as Record<string, string>).error || "Could not generate insights. Please try again.";
+        setError(msg);
       }
     } catch {
       setError("Could not generate insights. Please try again later.");
